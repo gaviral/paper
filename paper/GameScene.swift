@@ -10,17 +10,31 @@ import GameplayKit
 
 class GameScene: SKScene {
     
-    private var label : SKLabelNode?
+    private var initialLabel: SKLabelNode?
     private var spinnyNode : SKShapeNode?
+    private var lastPanLocation: CGPoint?
+    
+    /// Get the initial label and store it for later use
+    fileprivate func setupInitialLabel() {
+        self.initialLabel = self.childNode(withName: "//helloLabel") as? SKLabelNode
+    }
+
+    fileprivate func fadeIn(_ node: SKNode, over duration: TimeInterval) {
+        node.alpha = 0.0
+        node.run(SKAction.fadeIn(withDuration: duration))
+    }
+
+    /// Fade in the initial label
+    fileprivate func fadeInInitialLabel() {
+        setupInitialLabel()
+        if let label = self.initialLabel {
+            fadeIn(label, over: 2.0)
+        }
+    }
     
     override func didMove(to view: SKView) {
         
-        // Get label node from scene and store it for use later
-        self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
-        if let label = self.label {
-            label.alpha = 0.0
-            label.run(SKAction.fadeIn(withDuration: 2.0))
-        }
+        fadeInInitialLabel()
         
         // Create shape node to use during mouse interaction
         let w = (self.size.width + self.size.height) * 0.05
@@ -76,7 +90,7 @@ class GameScene: SKScene {
     override func keyDown(with event: NSEvent) {
         switch event.keyCode {
         case 0x31:
-            if let label = self.label {
+            if let label = self.initialLabel {
                 label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
             }
         default:
