@@ -13,6 +13,7 @@ class GameScene: SKScene {
     private var initialLabel: SKLabelNode?
     private var spinnyNode: SKShapeNode?
     private var lastAreaNumber: Int = 0
+    private var lastMousePosition: CGPoint?
     
     override func didMove(to view: SKView) {
         setupInitialLabel()
@@ -70,16 +71,34 @@ class GameScene: SKScene {
     // MARK: - Event Handling
     override func mouseDown(with event: NSEvent) {
         let mouseDownLocation = event.location(in: self)
+        lastMousePosition = event.location(in: self)
+
         touchDown(atPoint: mouseDownLocation)
-        createNewAreaOnPaper(at: mouseDownLocation)
     }
     
     override func mouseDragged(with event: NSEvent) {
+        guard let lastMouse = lastMousePosition else {
+            return
+        }
+        let mousePosition = event.location(in: self)
+        let movementDelta = CGPoint(x: mousePosition.x - lastMouse.x, y: mousePosition.y - lastMouse.y)
+
+        moveScene(by: movementDelta)
+        lastMousePosition = mousePosition
+
         touchMoved(toPoint: event.location(in: self))
     }
     
     override func mouseUp(with event: NSEvent) {
+        lastMousePosition = nil
+
         touchUp(atPoint: event.location(in: self))
+    }
+
+    private func moveScene(by delta: CGPoint) {
+        for node in children {
+            node.position = CGPoint(x: node.position.x + delta.x, y: node.position.y + delta.y)
+        }
     }
 
     override func keyDown(with event: NSEvent) {
@@ -96,6 +115,9 @@ class GameScene: SKScene {
     }
 
     private func handleSpaceBarKeyPress() {
+        // create new area on paper at the center of the current view port
+        createNewAreaOnPaper(at: CGPoint(x: 0, y: 0))
+        
         if let label = self.initialLabel {
             label.run(SKAction(named: "Pulse")!, withKey: "fadeInOut")
         }
