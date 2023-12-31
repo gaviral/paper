@@ -13,6 +13,7 @@ class GameScene: SKScene {
     private var initialLabel: SKLabelNode?
     private var spinnyNode : SKShapeNode?
     private var lastPanLocation: CGPoint?
+    private var lastAreaNumber: Int = 0
     
     /// Get the initial label and store it for later use
     fileprivate func setupInitialLabel() {
@@ -74,9 +75,36 @@ class GameScene: SKScene {
             self.addChild(n)
         }
     }
+
+    /// Create new label at specified position
+    /// - Parameters:
+    ///   - text: Text to display
+    ///   - position: Position of label
+    /// - Returns: Label node
+    func createLabel(text: String, position: CGPoint) -> SKLabelNode {
+        let label = SKLabelNode(text: text)
+        label.position = position
+        label.fontName = "AvenirNext-Bold"
+        label.fontSize = 50
+        label.fontColor = .white
+        label.zPosition = 1
+        return label
+    }
+    
+    fileprivate func createNewAreaOnPaper(at mouseDownLocation: CGPoint) {
+        
+        // TODO
+        
+        addChild(createLabel(text: lastAreaNumber.description, position: mouseDownLocation))
+        lastAreaNumber += 1
+    }
     
     override func mouseDown(with event: NSEvent) {
-        self.touchDown(atPoint: event.location(in: self))
+        let mouseDownLocation = event.location(in: self)
+        self.touchDown(atPoint: mouseDownLocation)
+
+        createNewAreaOnPaper(at: mouseDownLocation)
+    
     }
     
     override func mouseDragged(with event: NSEvent) {
