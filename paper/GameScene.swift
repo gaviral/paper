@@ -11,76 +11,97 @@ import GameplayKit
 class GameScene: SKScene {
     
     private var initialLabel: SKLabelNode?
-    private var spinnyNode : SKShapeNode?
-    private var lastPanLocation: CGPoint?
+    private var spinnyNode: SKShapeNode?
     private var lastAreaNumber: Int = 0
     
-    /// Get the initial label and store it for later use
+    override func didMove(to view: SKView) {
+        setupInitialLabel()
+        setupSpinnyNode()
+    }
+
+    // MARK: - Setup Methods
     fileprivate func setupInitialLabel() {
         self.initialLabel = self.childNode(withName: "//helloLabel") as? SKLabelNode
-    }
-
-    fileprivate func fadeIn(_ node: SKNode, over duration: TimeInterval) {
-        node.alpha = 0.0
-        node.run(SKAction.fadeIn(withDuration: duration))
-    }
-
-    /// Fade in the initial label
-    fileprivate func fadeInInitialLabel() {
-        setupInitialLabel()
         if let label = self.initialLabel {
-            fadeIn(label, over: 2.0)
+            fadeIn(node: label, over: 2.0)
         }
     }
-    
-    override func didMove(to view: SKView) {
-        
-        fadeInInitialLabel()
-        
-        // Create shape node to use during mouse interaction
+
+    fileprivate func setupSpinnyNode() {
         let w = (self.size.width + self.size.height) * 0.05
-        self.spinnyNode = SKShapeNode.init(rectOf: CGSize.init(width: w, height: w), cornerRadius: w * 0.3)
-        
-        if let spinnyNode = self.spinnyNode {
+        spinnyNode = SKShapeNode(rectOf: CGSize(width: w, height: w), cornerRadius: w * 0.3)
+
+        if let spinnyNode = spinnyNode {
             spinnyNode.lineWidth = 2.5
-            
             spinnyNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 1)))
             spinnyNode.run(SKAction.sequence([SKAction.wait(forDuration: 0.5),
                                               SKAction.fadeOut(withDuration: 0.5),
                                               SKAction.removeFromParent()]))
         }
     }
-    
-    
-    func touchDown(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.green
-            self.addChild(n)
-        }
+
+    // MARK: - Animation Methods
+    fileprivate func fadeIn(node: SKNode, over duration: TimeInterval) {
+        node.alpha = 0.0
+        node.run(SKAction.fadeIn(withDuration: duration))
+    }
+
+    // MARK: - Touch Handling Methods
+    func touchDown(atPoint pos: CGPoint) {
+        createSpinnyNode(at: pos, withColor: .green)
     }
     
-    func touchMoved(toPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.blue
-            self.addChild(n)
-        }
+    func touchMoved(toPoint pos: CGPoint) {
+        createSpinnyNode(at: pos, withColor: .blue)
     }
     
-    func touchUp(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.red
+    func touchUp(atPoint pos: CGPoint) {
+        createSpinnyNode(at: pos, withColor: .red)
+    }
+
+    fileprivate func createSpinnyNode(at position: CGPoint, withColor color: SKColor) {
+        if let n = self.spinnyNode?.copy() as? SKShapeNode {
+            n.position = position
+            n.strokeColor = color
             self.addChild(n)
         }
     }
 
-    /// Create new label at specified position
-    /// - Parameters:
-    ///   - text: Text to display
-    ///   - position: Position of label
-    /// - Returns: Label node
+    // MARK: - Event Handling
+    override func mouseDown(with event: NSEvent) {
+        let mouseDownLocation = event.location(in: self)
+        touchDown(atPoint: mouseDownLocation)
+        createNewAreaOnPaper(at: mouseDownLocation)
+    }
+    
+    override func mouseDragged(with event: NSEvent) {
+        touchMoved(toPoint: event.location(in: self))
+    }
+    
+    override func mouseUp(with event: NSEvent) {
+        touchUp(atPoint: event.location(in: self))
+    }
+
+    override func keyDown(with event: NSEvent) {
+        handleKeyDownEvent(with: event)
+    }
+
+    fileprivate func handleKeyDownEvent(with event: NSEvent) {
+        switch event.keyCode {
+        case 0x31:
+            handleSpaceBarKeyPress()
+        default:
+            print("keyDown: \(event.characters!) keyCode: \(event.keyCode)")
+        }
+    }
+
+    private func handleSpaceBarKeyPress() {
+        if let label = self.initialLabel {
+            label.run(SKAction(named: "Pulse")!, withKey: "fadeInOut")
+        }
+    }
+
+    // MARK: - Utility Methods
     func createLabel(text: String, position: CGPoint) -> SKLabelNode {
         let label = SKLabelNode(text: text)
         label.position = position
@@ -91,41 +112,10 @@ class GameScene: SKScene {
         return label
     }
     
-    fileprivate func createNewAreaOnPaper(at mouseDownLocation: CGPoint) {
-        
-        // TODO
-        
-        addChild(createLabel(text: lastAreaNumber.description, position: mouseDownLocation))
+    fileprivate func createNewAreaOnPaper(at location: CGPoint) {
+        addChild(createLabel(text: "\(lastAreaNumber)", position: location))
         lastAreaNumber += 1
     }
-    
-    override func mouseDown(with event: NSEvent) {
-        let mouseDownLocation = event.location(in: self)
-        self.touchDown(atPoint: mouseDownLocation)
-
-        createNewAreaOnPaper(at: mouseDownLocation)
-    
-    }
-    
-    override func mouseDragged(with event: NSEvent) {
-        self.touchMoved(toPoint: event.location(in: self))
-    }
-    
-    override func mouseUp(with event: NSEvent) {
-        self.touchUp(atPoint: event.location(in: self))
-    }
-    
-    override func keyDown(with event: NSEvent) {
-        switch event.keyCode {
-        case 0x31:
-            if let label = self.initialLabel {
-                label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
-            }
-        default:
-            print("keyDown: \(event.characters!) keyCode: \(event.keyCode)")
-        }
-    }
-    
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
