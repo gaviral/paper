@@ -14,6 +14,7 @@
 		4CB0F1EC2B40A45D00A45A1D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CB0F1EB2B40A45D00A45A1D /* ViewController.swift */; };
 		4CB0F1EE2B40A45F00A45A1D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CB0F1ED2B40A45F00A45A1D /* Assets.xcassets */; };
 		4CB0F1F12B40A45F00A45A1D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4CB0F1EF2B40A45F00A45A1D /* Main.storyboard */; };
+		4CB0F1F92B40AA7600A45A1D /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 4CB0F1F82B40AA7600A45A1D /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,8 @@
 		4CB0F1ED2B40A45F00A45A1D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4CB0F1F02B40A45F00A45A1D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		4CB0F1F22B40A45F00A45A1D /* paper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = paper.entitlements; sourceTree = "<group>"; };
+		4CB0F1F82B40AA7600A45A1D /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		4CC31E372B41599500125C3B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +45,8 @@
 		4CB0F1D72B40A45D00A45A1D = {
 			isa = PBXGroup;
 			children = (
+				4CC31E372B41599500125C3B /* README.md */,
+				4CB0F1F82B40AA7600A45A1D /* .gitignore */,
 				4CB0F1E22B40A45D00A45A1D /* paper */,
 				4CB0F1E12B40A45D00A45A1D /* Products */,
 			);
@@ -128,6 +133,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CB0F1F92B40AA7600A45A1D /* .gitignore in Resources */,
 				4CB0F1E62B40A45D00A45A1D /* GameScene.sks in Resources */,
 				4CB0F1EE2B40A45F00A45A1D /* Assets.xcassets in Resources */,
 				4CB0F1E82B40A45D00A45A1D /* Actions.sks in Resources */,
@@ -196,6 +202,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -259,6 +266,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -289,6 +297,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = RGJG577NFR;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -316,6 +325,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = RGJG577NFR;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
