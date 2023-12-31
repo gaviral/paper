@@ -14,10 +14,14 @@ class GameScene: SKScene {
     private var spinnyNode: SKShapeNode?
     private var lastAreaNumber: Int = 0
     private var lastMousePosition: CGPoint?
-    
+
     override func didMove(to view: SKView) {
         setupInitialLabel()
         setupSpinnyNode()
+    }
+
+    override func update(_ currentTime: TimeInterval) {
+        // Called before each frame is rendered
     }
 
     // MARK: - Setup Methods
@@ -95,12 +99,6 @@ class GameScene: SKScene {
         touchUp(atPoint: event.location(in: self))
     }
 
-    private func moveScene(by delta: CGPoint) {
-        for node in children {
-            node.position = CGPoint(x: node.position.x + delta.x, y: node.position.y + delta.y)
-        }
-    }
-
     override func keyDown(with event: NSEvent) {
         handleKeyDownEvent(with: event)
     }
@@ -115,7 +113,6 @@ class GameScene: SKScene {
     }
 
     private func handleSpaceBarKeyPress() {
-        // create new area on paper at the center of the current view port
         createNewAreaOnPaper(at: CGPoint(x: 0, y: 0))
         
         if let label = self.initialLabel {
@@ -138,8 +135,10 @@ class GameScene: SKScene {
         addChild(createLabel(text: "\(lastAreaNumber)", position: location))
         lastAreaNumber += 1
     }
-    
-    override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
+
+    private func moveScene(by delta: CGPoint) {
+        for node in children {
+            node.position = CGPoint(x: node.position.x + delta.x, y: node.position.y + delta.y)
+        }
     }
 }
