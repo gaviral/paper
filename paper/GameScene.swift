@@ -6,6 +6,8 @@
 //
 
 import SpriteKit
+import OpenAI
+
 
 struct Constants {
     static let labelFontSize: CGFloat = 48
@@ -22,10 +24,55 @@ class GameScene: SKScene {
         setupWorldNode()
         addLabelAndBackground()
         setupGestureRecognizers(in: view)
+
+        // Use a task to handle async calls
+        Task {
+            await openAI()
+        }
     }
 }
 
 private extension GameScene {
+
+    func openAI() async {
+
+        var apiKey: String {
+            ProcessInfo.processInfo.environment["OPENAI_API_KEY"]!
+        }
+
+        var organization: String {
+            ProcessInfo.processInfo.environment["OPENAI_ORGANIZATION"]!
+        }
+
+        let openAI = OpenAI(apiToken: apiKey)
+
+        // examples of how to use the API
+
+        enum testOpenAI {
+            case completions
+        }
+
+        do {
+            switch testOpenAI.completions {
+            case .completions:
+                let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
+                openAI.completions(query: query) { result in
+                    //Handle result here
+                }
+                //or
+                let result = try await openAI.completions(query: query)
+                print(result)
+            }
+
+
+        } catch let error as APIErrorResponse {
+            print(error)
+        } catch {
+            print(error)
+        }
+    }
+
+
     // This method sets up the world node by adding it as a child node
     func setupWorldNode() {
         addChild(paper)

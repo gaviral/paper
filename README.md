@@ -2,6 +2,10 @@
 
 ## Demo
 
+### v 0.4.0: OpenAI API test
+
+![openai-completion-test](./documentation/images/openai-completion-test.png)
+
 ### v 0.3.0: 2-finger pan + Zoom
 
 ![pan-and-zoom](./documentation/images/pan-and-zoom.gif)

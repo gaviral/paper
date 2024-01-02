@@ -15,6 +15,7 @@
 		4CB0F1EE2B40A45F00A45A1D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CB0F1ED2B40A45F00A45A1D /* Assets.xcassets */; };
 		4CB0F1F12B40A45F00A45A1D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4CB0F1EF2B40A45F00A45A1D /* Main.storyboard */; };
 		4CB0F1F92B40AA7600A45A1D /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 4CB0F1F82B40AA7600A45A1D /* .gitignore */; };
+		4CFF2BE82B44154F00FA5592 /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 4CFF2BE72B44154F00FA5592 /* OpenAI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CFF2BE82B44154F00FA5592 /* OpenAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,6 +93,9 @@
 			dependencies = (
 			);
 			name = paper;
+			packageProductDependencies = (
+				4CFF2BE72B44154F00FA5592 /* OpenAI */,
+			);
 			productName = paper;
 			productReference = 4CB0F1E02B40A45D00A45A1D /* paper.app */;
 			productType = "com.apple.product-type.application";
@@ -119,6 +124,9 @@
 				Base,
 			);
 			mainGroup = 4CB0F1D72B40A45D00A45A1D;
+			packageReferences = (
+				4CFF2BE62B44154F00FA5592 /* XCRemoteSwiftPackageReference "OpenAI" */,
+			);
 			productRefGroup = 4CB0F1E12B40A45D00A45A1D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -303,6 +311,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = paper;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -331,6 +340,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = paper;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -366,6 +376,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4CFF2BE62B44154F00FA5592 /* XCRemoteSwiftPackageReference "OpenAI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/MacPaw/OpenAI/";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.5;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4CFF2BE72B44154F00FA5592 /* OpenAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4CFF2BE62B44154F00FA5592 /* XCRemoteSwiftPackageReference "OpenAI" */;
+			productName = OpenAI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4CB0F1D82B40A45D00A45A1D /* Project object */;
 }
