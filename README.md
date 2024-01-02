@@ -2,6 +2,10 @@
 
 ## Demo
 
+### v 0.3.0: Pan + Zoom
+
+![pan-and-zoom](./documentation/images/pan-and-zoom.gif)
+
 ### v 0.2.0: Pan + Dynamic Text on Space Key Down
 
 ![pan-and-text-on-spacebar](./documentation/images/pan-and-text-on-spacebar.gif)
