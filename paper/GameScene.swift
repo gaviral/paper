@@ -14,8 +14,7 @@ struct Constants {
 }
 
 class GameScene: SKScene {
-    // This node represents the world in the game
-    private let worldNode = SKNode()
+    private let paper = SKNode()
     private var halfWidth: CGFloat { size.width / 2 }
     private var halfHeight: CGFloat { size.height / 2 }
 
@@ -29,22 +28,22 @@ class GameScene: SKScene {
 private extension GameScene {
     // This method sets up the world node by adding it as a child node
     func setupWorldNode() {
-        addChild(worldNode)
+        addChild(paper)
     }
 
     // This method adds a label and a background to the world node
     func addLabelAndBackground() {
-        let background = SKSpriteNode(color: .black, size: size)
+        let background = SKSpriteNode(color: .white, size: size)
         background.position = CGPoint(x: halfWidth, y: halfHeight)
         background.zPosition = -1
-        worldNode.addChild(background)
+        paper.addChild(background)
 
         let label = SKLabelNode(text: "Paper")
         label.position = CGPoint(x: halfWidth, y: halfHeight)
         label.fontColor = .white
         label.fontSize = Constants.labelFontSize
         label.zPosition = Constants.labelZPosition
-        worldNode.addChild(label)
+        paper.addChild(label)
     }
 
     // This method sets up gesture recognizers for the view
@@ -57,8 +56,8 @@ private extension GameScene {
     @objc func handlePinch(gesture: NSMagnificationGestureRecognizer) {
         guard gesture.state == .changed else { return }
         let scale = 1 + gesture.magnification
-        let newScale = worldNode.xScale * scale
-        worldNode.setScale(newScale)
+        let newScale = paper.xScale * scale
+        paper.setScale(newScale)
         gesture.magnification = 0
     }
 }
@@ -71,7 +70,7 @@ extension GameScene {
         let deltaY = event.scrollingDeltaY
         let constrainedDeltaX = abs(deltaX) < Constants.threshold ? 0 : deltaX
         let constrainedDeltaY = abs(deltaY) < Constants.threshold ? 0 : deltaY
-        let newPosition = CGPoint(x: worldNode.position.x + constrainedDeltaX, y: worldNode.position.y - constrainedDeltaY)
-        worldNode.position = newPosition
+        let newPosition = CGPoint(x: paper.position.x + constrainedDeltaX, y: paper.position.y - constrainedDeltaY)
+        paper.position = newPosition
     }
 }
