@@ -2,7 +2,7 @@
 
 ## Demo
 
-### v 0.3.0: Pan + Zoom
+### v 0.3.0: 2-finger pan + Zoom
 
 ![pan-and-zoom](./documentation/images/pan-and-zoom.gif)
 
