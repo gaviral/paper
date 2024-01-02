@@ -6,139 +6,72 @@
 //
 
 import SpriteKit
-import GameplayKit
+
+struct Constants {
+    static let labelFontSize: CGFloat = 48
+    static let labelZPosition: CGFloat = 1
+    static let threshold: CGFloat = 0.0
+}
 
 class GameScene: SKScene {
-    
-    private var initialLabel: SKLabelNode?
-    private var spinnyNode: SKShapeNode?
-    private var lastAreaNumber: Int = 0
-    private var lastMousePosition: CGPoint?
+    // This node represents the world in the game
+    private let worldNode = SKNode()
+    private var halfWidth: CGFloat { size.width / 2 }
+    private var halfHeight: CGFloat { size.height / 2 }
 
     override func didMove(to view: SKView) {
-        setupInitialLabel()
-        setupSpinnyNode()
+        setupWorldNode()
+        addLabelAndBackground()
+        setupGestureRecognizers(in: view)
+    }
+}
+
+private extension GameScene {
+    // This method sets up the world node by adding it as a child node
+    func setupWorldNode() {
+        addChild(worldNode)
     }
 
-    override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
-    }
+    // This method adds a label and a background to the world node
+    func addLabelAndBackground() {
+        let background = SKSpriteNode(color: .black, size: size)
+        background.position = CGPoint(x: halfWidth, y: halfHeight)
+        background.zPosition = -1
+        worldNode.addChild(background)
 
-    // MARK: - Setup Methods
-    fileprivate func setupInitialLabel() {
-        self.initialLabel = self.childNode(withName: "//helloLabel") as? SKLabelNode
-        if let label = self.initialLabel {
-            fadeIn(node: label, over: 2.0)
-        }
-    }
-
-    fileprivate func setupSpinnyNode() {
-        let w = (self.size.width + self.size.height) * 0.05
-        spinnyNode = SKShapeNode(rectOf: CGSize(width: w, height: w), cornerRadius: w * 0.3)
-
-        if let spinnyNode = spinnyNode {
-            spinnyNode.lineWidth = 2.5
-            spinnyNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 1)))
-            spinnyNode.run(SKAction.sequence([SKAction.wait(forDuration: 0.5),
-                                              SKAction.fadeOut(withDuration: 0.5),
-                                              SKAction.removeFromParent()]))
-        }
-    }
-
-    // MARK: - Animation Methods
-    fileprivate func fadeIn(node: SKNode, over duration: TimeInterval) {
-        node.alpha = 0.0
-        node.run(SKAction.fadeIn(withDuration: duration))
-    }
-
-    // MARK: - Touch Handling Methods
-    func touchDown(atPoint pos: CGPoint) {
-        createSpinnyNode(at: pos, withColor: .green)
-    }
-    
-    func touchMoved(toPoint pos: CGPoint) {
-        createSpinnyNode(at: pos, withColor: .blue)
-    }
-    
-    func touchUp(atPoint pos: CGPoint) {
-        createSpinnyNode(at: pos, withColor: .red)
-    }
-
-    fileprivate func createSpinnyNode(at position: CGPoint, withColor color: SKColor) {
-        if let n = self.spinnyNode?.copy() as? SKShapeNode {
-            n.position = position
-            n.strokeColor = color
-            self.addChild(n)
-        }
-    }
-
-    // MARK: - Event Handling
-    override func mouseDown(with event: NSEvent) {
-        let mouseDownLocation = event.location(in: self)
-        lastMousePosition = event.location(in: self)
-
-        touchDown(atPoint: mouseDownLocation)
-    }
-    
-    override func mouseDragged(with event: NSEvent) {
-        guard let lastMouse = lastMousePosition else {
-            return
-        }
-        let mousePosition = event.location(in: self)
-        let movementDelta = CGPoint(x: mousePosition.x - lastMouse.x, y: mousePosition.y - lastMouse.y)
-
-        moveScene(by: movementDelta)
-        lastMousePosition = mousePosition
-
-        touchMoved(toPoint: event.location(in: self))
-    }
-    
-    override func mouseUp(with event: NSEvent) {
-        lastMousePosition = nil
-
-        touchUp(atPoint: event.location(in: self))
-    }
-
-    override func keyDown(with event: NSEvent) {
-        handleKeyDownEvent(with: event)
-    }
-
-    fileprivate func handleKeyDownEvent(with event: NSEvent) {
-        switch event.keyCode {
-        case 0x31:
-            handleSpaceBarKeyPress()
-        default:
-            print("keyDown: \(event.characters!) keyCode: \(event.keyCode)")
-        }
-    }
-
-    private func handleSpaceBarKeyPress() {
-        createNewAreaOnPaper(at: CGPoint(x: 0, y: 0))
-        
-        if let label = self.initialLabel {
-            label.run(SKAction(named: "Pulse")!, withKey: "fadeInOut")
-        }
-    }
-
-    // MARK: - Utility Methods
-    func createLabel(text: String, position: CGPoint) -> SKLabelNode {
-        let label = SKLabelNode(text: text)
-        label.position = position
-        label.fontName = "AvenirNext-Bold"
-        label.fontSize = 50
+        let label = SKLabelNode(text: "Paper")
+        label.position = CGPoint(x: halfWidth, y: halfHeight)
         label.fontColor = .white
-        label.zPosition = 1
-        return label
-    }
-    
-    fileprivate func createNewAreaOnPaper(at location: CGPoint) {
-        addChild(createLabel(text: "\(lastAreaNumber)", position: location))
-        lastAreaNumber += 1
+        label.fontSize = Constants.labelFontSize
+        label.zPosition = Constants.labelZPosition
+        worldNode.addChild(label)
     }
 
-    private func moveScene(by delta: CGPoint) {
-        for node in children {
-            node.position = CGPoint(x: node.position.x + delta.x, y: node.position.y + delta.y)
-        }
+    // This method sets up gesture recognizers for the view
+    func setupGestureRecognizers(in view: SKView) {
+        let pinchRecognizer = NSMagnificationGestureRecognizer(target: self, action: #selector(handlePinch(gesture:)))
+        view.addGestureRecognizer(pinchRecognizer)
+    }
+
+    // This method handles pinch gestures
+    @objc func handlePinch(gesture: NSMagnificationGestureRecognizer) {
+        guard gesture.state == .changed else { return }
+        let scale = 1 + gesture.magnification
+        let newScale = worldNode.xScale * scale
+        worldNode.setScale(newScale)
+        gesture.magnification = 0
+    }
+}
+
+extension GameScene {
+
+    // This method handles scroll events
+    func handleScrollEvent(_ event: NSEvent) {
+        let deltaX = event.scrollingDeltaX
+        let deltaY = event.scrollingDeltaY
+        let constrainedDeltaX = abs(deltaX) < Constants.threshold ? 0 : deltaX
+        let constrainedDeltaY = abs(deltaY) < Constants.threshold ? 0 : deltaY
+        let newPosition = CGPoint(x: worldNode.position.x + constrainedDeltaX, y: worldNode.position.y - constrainedDeltaY)
+        worldNode.position = newPosition
     }
 }

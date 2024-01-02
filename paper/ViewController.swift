@@ -10,27 +10,41 @@ import SpriteKit
 import GameplayKit
 
 class ViewController: NSViewController {
-
-    @IBOutlet var skView: SKView!
+    // This outlet connects the SKView in the storyboard to the code
+    @IBOutlet private var skView: SKView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        if let view = self.skView {
-            // Load the SKScene from 'GameScene.sks'
-            if let scene = SKScene(fileNamed: "GameScene") {
-                // Set the scale mode to scale to fit the window
-                scene.scaleMode = .aspectFill
-                
-                // Present the scene
-                view.presentScene(scene)
-            }
-            
-            view.ignoresSiblingOrder = true
-            
-            view.showsFPS = true
-            view.showsNodeCount = true
-        }
+        setupView()
+    }
+    
+    // This method handles scroll wheel events
+    override func scrollWheel(with event: NSEvent) {
+        (skView.scene as? GameScene)?.handleScrollEvent(event)
     }
 }
 
+// MARK: - Setup Methods
+private extension ViewController {
+    // This method sets up the view
+    func setupView() {
+        guard let view = skView, let scene = SKScene(fileNamed: "GameScene") else {
+            // Handle the error here
+            return
+        }
+        scene.scaleMode = .aspectFill
+        view.presentScene(scene)
+        setupDebugging(for: view)
+    }
+    
+    // This method sets up debugging for the view
+    func setupDebugging(for view: SKView) {
+        view.ignoresSiblingOrder = true
+        view.showsFPS = true
+        view.showsNodeCount = true
+        view.showsFields = true
+        view.showsPhysics = true
+        view.showsDrawCount = true
+        view.showsQuadCount = true
+    }
+}
