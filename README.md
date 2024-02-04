@@ -1,6 +1,10 @@
-#  Paper
+# Paper
 
 ## Demo
+
+### v 0.5.0: Notes Rendering
+
+![notes-rendering](./documentation/images/notes-rendering.png)
 
 ### v 0.4.0: OpenAI API test
 
