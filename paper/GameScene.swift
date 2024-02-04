@@ -8,9 +8,12 @@
 import SpriteKit
 import OpenAI
 
+struct testing {
+    static var openAI: Bool = false
+}
 
 struct Constants {
-    static let labelFontSize: CGFloat = 48
+    static let treeNodeLabelFontSize: CGFloat = 10
     static let labelZPosition: CGFloat = 1
     static let threshold: CGFloat = 0.0
 }
@@ -19,15 +22,19 @@ class GameScene: SKScene {
     private let paper = SKNode()
     private var halfWidth: CGFloat { size.width / 2 }
     private var halfHeight: CGFloat { size.height / 2 }
+    private var node_positions = [CGPoint]() // array to store the positions of the nodes
+    private var new_node_x_position: CGFloat = 0 // variable to store the x position of the next node;
+    private var new_node_y_position: CGFloat = 0 // variable to store the y position of the next node; incremented by 50 each time a new node is added
 
     override func didMove(to view: SKView) {
         setupWorldNode()
-        addLabelAndBackground()
         setupGestureRecognizers(in: view)
 
-        // Use a task to handle async calls
-        Task {
-            await openAI()
+        if testing.openAI {
+            // Use a task to handle async calls
+            Task {
+                await openAI()
+            }
         }
     }
 }
@@ -78,19 +85,26 @@ private extension GameScene {
         addChild(paper)
     }
 
-    // This method adds a label and a background to the world node
-    func addLabelAndBackground() {
-        let background = SKSpriteNode(color: .white, size: size)
-        background.position = CGPoint(x: halfWidth, y: halfHeight)
-        background.zPosition = -1
-        paper.addChild(background)
-
-        let label = SKLabelNode(text: "Paper")
-        label.position = CGPoint(x: halfWidth, y: halfHeight)
+    // This method adds a label to the world node
+    func addLabel(text: String, x: CGFloat, y: CGFloat, frontSize: CGFloat = Constants.treeNodeLabelFontSize) -> SKLabelNode {
+        let label = SKLabelNode(text: text)
+        label.position = CGPoint(x: x, y: y)
         label.fontColor = .white
-        label.fontSize = Constants.labelFontSize
+        label.fontSize = frontSize
         label.zPosition = Constants.labelZPosition
         paper.addChild(label)
+        node_positions.append(label.position)
+        new_node_y_position -= 15
+        return label
+    }
+    
+    // This method adds a background to the world node at the given coordinates with a given size
+    // Usage: addBackground(x: 0, y: 0, width: size.width / 5 , height: size.height / 5)
+    func addBackground(x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat) {
+        let background = SKSpriteNode(color: .white, size: CGSize(width: width, height: height))
+        background.position = CGPoint(x: x, y: y)
+        background.zPosition = -1
+        paper.addChild(background)
     }
 
     // This method sets up gesture recognizers for the view
@@ -98,6 +112,12 @@ private extension GameScene {
         let pinchRecognizer = NSMagnificationGestureRecognizer(target: self, action: #selector(handlePinch(gesture:)))
         view.addGestureRecognizer(pinchRecognizer)
     }
+
+    // This method resizes the paper node when the view is resized
+    // override func didChangeSize(_ oldSize: CGSize) {
+    //     // TODO: This method is not tested yet
+    //     paper.position = CGPoint(x: halfWidth, y: halfHeight)
+    // }
 
     // This method handles pinch gestures
     @objc func handlePinch(gesture: NSMagnificationGestureRecognizer) {
