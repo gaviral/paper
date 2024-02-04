@@ -31,7 +31,7 @@ class GameScene: SKScene {
     override func didMove(to view: SKView) {
         setupWorldNode()
         setupGestureRecognizers(in: view)
-        fetchNotes()
+        fetchNotes(urlString: "https://raw.githubusercontent.com/gaviral/map/main/index.html")
 
         if testing.openAI {
             // Use a task to handle async calls
@@ -45,8 +45,8 @@ class GameScene: SKScene {
 private extension GameScene {
 
     // This method fetches the notes from the server
-    func fetchNotes() {
-        let urlString = "https://raw.githubusercontent.com/gaviral/map/main/index.html"
+    func fetchNotes(urlString: String) {
+        let urlString = urlString
         guard let url = URL(string: urlString) else { return }
         var request = URLRequest(url: url, timeoutInterval: Double.infinity)
         request.httpMethod = "GET"
