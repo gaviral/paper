@@ -60,12 +60,25 @@ private extension GameScene {
 
                 // add labels for the rest of the html content
                 var i = 1
-                for node_text in htmlContent!.components(separatedBy: "\n").dropFirst() {
-                    self.addLabel(text: node_text, x: self.new_node_x_position, y: self.new_node_y_position)
-                    i += 1
-                    if i > 10 {
-                        break
+
+                // print everything inside <script type="text/template"> tag. it will occur only once but there will be multiple lines inside it
+                while i < (htmlContent?.components(separatedBy: "<script type=\"text/template\">").count)! {
+                    let script = htmlContent?.components(separatedBy: "<script type=\"text/template\">")[i]
+                    let script_content = script?.components(separatedBy: "</script>")[0]
+                    let script_lines = script_content?.components(separatedBy: "\n")
+                    for line in script_lines! {
+                        node_text = line
+                        print(node_text)
+                        // increment new_node_x_position position by the number of spaces in the beginning of the line
+                        new_node_x_position = CGFloat((node_text?.components(separatedBy: " ").count)! * 10)
+                        let label = addLabel(text: node_text!, x: new_node_x_position, y: new_node_y_position)
+                        // label.horizontalAlignmentMode = .left
+                        new_node_x_position = 0
+
+                        // TODO: consider changing the logic of x and y positions in addLabel method
+
                     }
+                    i += 1
                 }
             } catch {
                 print(error)
