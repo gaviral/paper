@@ -13,6 +13,7 @@ struct testing {
 }
 
 struct Constants {
+    static let titleLabelFontSize: CGFloat = 48
     static let treeNodeLabelFontSize: CGFloat = 10
     static let labelZPosition: CGFloat = 1
     static let threshold: CGFloat = 0.0
@@ -25,10 +26,12 @@ class GameScene: SKScene {
     private var node_positions = [CGPoint]() // array to store the positions of the nodes
     private var new_node_x_position: CGFloat = 0 // variable to store the x position of the next node;
     private var new_node_y_position: CGFloat = 0 // variable to store the y position of the next node; incremented by 50 each time a new node is added
+    private var textField: NSTextField = NSTextField()
 
     override func didMove(to view: SKView) {
         setupWorldNode()
         setupGestureRecognizers(in: view)
+        fetchNotes()
 
         if testing.openAI {
             // Use a task to handle async calls
@@ -41,6 +44,36 @@ class GameScene: SKScene {
 
 private extension GameScene {
 
+    // This method fetches the notes from the server
+    func fetchNotes() {
+        let urlString = "https://raw.githubusercontent.com/gaviral/map/main/index.html"
+        guard let url = URL(string: urlString) else { return }
+        var request = URLRequest(url: url, timeoutInterval: Double.infinity)
+        request.httpMethod = "GET"
+
+        Task {
+            do {
+                let (data, _) = try await URLSession.shared.data(for: request)
+                let htmlContent = String(data: data, encoding: .utf8)
+                // add label for only the first line of the html content
+                var node_text = htmlContent?.components(separatedBy: "\n")[0]
+
+                // add labels for the rest of the html content
+                var i = 1
+                for node_text in htmlContent!.components(separatedBy: "\n").dropFirst() {
+                    self.addLabel(text: node_text, x: self.new_node_x_position, y: self.new_node_y_position)
+                    i += 1
+                    if i > 10 {
+                        break
+                    }
+                }
+            } catch {
+                print(error)
+            }
+        }
+    }
+
+    // This method calls openAI API
     func openAI() async {
 
         var apiKey: String {
