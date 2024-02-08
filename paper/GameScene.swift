@@ -19,6 +19,23 @@ struct Constants {
     static let threshold: CGFloat = 0.0
 }
 
+class TreeNode<T> {
+    var value: T
+    var depth = 0
+    var children: [TreeNode] = []
+    weak var parent: TreeNode?
+
+    init(value: T) {
+        self.value = value
+    }
+
+    func addChild(_ node: TreeNode<T>) {
+        children.append(node)
+        node.parent = self
+    }
+}
+
+
 class GameScene: SKScene {
     private let paper = SKNode()
     private var halfWidth: CGFloat { size.width / 2 }
@@ -27,6 +44,11 @@ class GameScene: SKScene {
     private var new_node_x_position: CGFloat = 0 // variable to store the x position of the next node;
     private var new_node_y_position: CGFloat = 0 // variable to store the y position of the next node; incremented by 50 each time a new node is added
     private var textField: NSTextField = NSTextField()
+    private var markdownLines = [String]()  // array to store the lines of the markdown file
+    private var stack: [TreeNode<String>] = [TreeNode<String>(value: "root")] // stack to keep track of the last node at each level of indentation
+    // number of times "---" occurs in the markdown file
+    private var numberOfDashes: Int = 0
+    
 
     override func didMove(to view: SKView) {
         setupWorldNode()
@@ -43,7 +65,7 @@ class GameScene: SKScene {
 }
 
 private extension GameScene {
-
+    
     // This method fetches the notes from the server
     func fetchNotes(urlString: String) {
         let urlString = urlString
@@ -55,30 +77,101 @@ private extension GameScene {
             do {
                 let (data, _) = try await URLSession.shared.data(for: request)
                 let htmlContent = String(data: data, encoding: .utf8)
-                // add label for only the first line of the html content
-                var node_text = htmlContent?.components(separatedBy: "\n")[0]
-
-                // add labels for the rest of the html content
                 var i = 1
 
-                // print everything inside <script type="text/template"> tag. it will occur only once but there will be multiple lines inside it
-                while i < (htmlContent?.components(separatedBy: "<script type=\"text/template\">").count)! {
-                    let script = htmlContent?.components(separatedBy: "<script type=\"text/template\">")[i]
-                    let script_content = script?.components(separatedBy: "</script>")[0]
-                    let script_lines = script_content?.components(separatedBy: "\n")
-                    for line in script_lines! {
-                        node_text = line
-                        print(node_text)
-                        // increment new_node_x_position position by the number of spaces in the beginning of the line
-                        new_node_x_position = CGFloat((node_text?.components(separatedBy: " ").count)! * 10)
-                        let label = addLabel(text: node_text!, x: new_node_x_position, y: new_node_y_position)
-                        // label.horizontalAlignmentMode = .left
-                        new_node_x_position = 0
+                // line number of the line containing <script type="text/template"> and it's corresponding </script> tag. everything in between these tags is the markdown content
+                var startLine: Int = 0
+                var endLine: Int = 0
 
-                        // TODO: consider changing the logic of x and y positions in addLabel method
-
+                // iterate through the lines of the html content
+                for line in htmlContent!.components(separatedBy: "\n") {
+                    if line.contains("<script type=\"text/template\">") {
+                        startLine = i
+                    }
+                    if line.contains("</script>") {
+                        endLine = i
                     }
                     i += 1
+                }
+
+                // extract the markdown content from the html content
+                let markdownContent = htmlContent!.components(separatedBy: "\n")[startLine...endLine]
+                for line in markdownContent {
+                    markdownLines.append(line)
+                }
+
+                // first few lines of the markdown content contain some settings that we don't need
+                // line before settings is "---" with some spaces before it
+                // line after settings is "---" with some spaces before it
+                // store the settings in a separate array and remove them from the markdown content
+                var settings = [String]()
+                var j = 0
+                for line in markdownLines {
+                    if line.contains("---") {
+                        numberOfDashes += 1
+                    }
+                    if numberOfDashes == 2 {
+                        break
+                    }
+                    settings.append(line)
+                    j += 1
+                }
+                markdownLines.removeSubrange(0...j)
+
+                // print settings
+                for setting in settings {
+                    print(setting)
+                }
+
+                print("Markdown content after removing settings:")
+
+                i = 0
+
+                for line in self.markdownLines {
+
+                    // store line number, number of spaces before the line, and the line
+                    let node_number = i
+                    let node_depth = line.prefix(while: { $0 == " " }).count/2
+                    let node_content = line.trimmingCharacters(in: .whitespaces)
+                    
+                    // print line_number, number of spaces before the line, and the line
+                    print(node_number, node_depth, node_content)
+
+                    // add the line to the tree (stack already contains the root node)
+                    // if the line is at the same level as the last line, add it to the same parent
+                    let stack_last_depth = stack.last?.depth
+
+                    if node_depth == stack_last_depth {
+                        stack.last?.addChild(TreeNode<String>(value: node_content))
+                    }
+                    // if the line is at a deeper level than the last line, add it as a child of the last line
+                    else if node_depth > stack_last_depth! {
+                        stack.last?.addChild(TreeNode<String>(value: node_content))
+                    }
+                    // if the line is at a shallower level than the last line, pop the stack back to the parent level and add it there
+                    else {
+                        stack = Array(stack.prefix(node_depth + 1))
+                        stack.last?.addChild(TreeNode<String>(value: node_content))
+                    }
+
+                    // push this node onto the stack
+                    stack.append(TreeNode<String>(value: node_content))
+                    
+                    i += 1
+                }
+
+                // print the tree iterative bfs
+                print("Iterative BFS:")
+                var queue = [TreeNode<String>]()
+                queue.append(stack[0])
+                while !queue.isEmpty {
+                    let node = queue.removeFirst()
+                    print(node.value)
+                    // print first 5 children of the node
+                    for i in 0..<min(5, node.children.count) {
+                        print("a:", node.children[i].value)
+                    }
+                    queue.append(contentsOf: node.children)
                 }
             } catch {
                 print(error)
@@ -100,7 +193,6 @@ private extension GameScene {
         let openAI = OpenAI(apiToken: apiKey)
 
         // examples of how to use the API
-
         enum testOpenAI {
             case completions
         }
@@ -196,3 +288,41 @@ extension GameScene {
         paper.position = newPosition
     }
 }
+
+// extension GameScene {
+//     func parseMarkdownToTree(_ markdown: String) -> TreeNode<String>? {
+//         // Split the markdown content into lines
+//         let lines = markdown.components(separatedBy: "\n")
+        
+//         // Placeholder for the root of the tree
+//         let root = TreeNode<String>(value: "root")
+        
+//         // Stack to keep track of the last node at each level of indentation
+//         var stack: [TreeNode<String>] = [root]
+        
+//         for line in lines {
+//             // Determine the level of indentation
+//             let level = line.prefix(while: { $0 == " " || $0 == "\t" }).count / 4 // assuming 4 spaces per indent level
+            
+//             // Extract the actual content without leading spaces or list markers
+//             let content = line.trimmingCharacters(in: .whitespaces).trimmingCharacters(in: CharacterSet(charactersIn: "-*"))
+            
+//             // Create a new node for this line
+//             let node = TreeNode<String>(value: content)
+            
+//             // If the current level is deeper than the stack, it means this is a child of the last item
+//             if level >= stack.count {
+//                 stack.last?.addChild(node)
+//             } else {
+//                 // If we're at a shallower level, pop the stack back to the parent level and add it there
+//                 stack = Array(stack.prefix(level + 1))
+//                 stack.last?.addChild(node)
+//             }
+            
+//             // Push this node onto the stack
+//             stack.append(node)
+//         }
+        
+//         return root.children.isEmpty ? nil : root
+//     }
+// }
